@@ -63,21 +63,21 @@ if __name__ == '__main__':
     # 源节点发送数据包
     content = ["Hello", "Simulator", "Hi", "my", "own", "network"]
     for i in range(1):
-        route_table[0].packets = [Packet.Packet() for row in range(3)]
+        route_table[0].packets = [Packet.Packet() for row in range(6)]
         num = 0
         for item in route_table[0].packets:
             item.src = route_table[0]
             item.dst = route_table[len(route_table) - 1]
             item.content = content[num]
             num += 1
-        route_table[0].send_packets(route_table[0].packets, route_table)
+            route_table[0].send_packets(item, route_table)
 
         for node in route_table:
             print(node.name + '\t', end='')
             for pkt in node.packets:
-                print(pkt.src.name + '\t' + pkt.dst.name + '\t' + pkt.content + '\t', end='')
-                #print(pkt.content + '\t', end='')
-            print('*****************')
+                #print(pkt.src.name + '\t' + pkt.dst.name + '\t' + pkt.content + '\t', end='')
+                print(pkt.content + '\t', end='')
+            print('')
 
         time.sleep(0.1)
         print('____________________________')
