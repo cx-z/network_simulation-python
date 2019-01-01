@@ -3,7 +3,6 @@ import Topology
 import Node
 import Packet
 import threading
-import time
 
 
 def simulator_start(src_node, dst_node, content):
@@ -14,7 +13,7 @@ def simulator_start(src_node, dst_node, content):
     print('{}->{}的最短路径是：{}，最短路径为：{}'.format(start, end, shortestPath, length))
 
     # 源节点发送数据包
-    src_node.packets = [Packet.Packet() for row in range(3)]
+    src_node.packets = [Packet.Packet() for row in range(len(content))]
     num = 0
     print('包个数' + str(len(src_node.packets)))
     for item in src_node.packets:
@@ -35,19 +34,23 @@ if __name__ == '__main__':
         temp_node = Node.Node(item)
         node_list.append(temp_node)
 
-    content1 = ["Hello", "Simulator", "Hi", "my", "own", "network", "Wonderful"]
-    content2 = ["I", "am", "C"]
+    # 本次仿真的输入
+    # ----------------------------------------------------------------------------------------------------
+    del node_list[0]
+    NodeA = Node.DiversionNode(Topology.address_list[0])
+    node_list.insert(0, NodeA)
+    content1 = ["Hello", "my", "Simulator"]
     simulator_start(node_list[0], node_list[-1], content1)
-    simulator_start(node_list[2], node_list[-1], content2)
+    # ----------------------------------------------------------------------------------------------------
 
     threads = []
     for i in range(len(node_list)):
-        thread = threading.Thread(target=node_list[i].send_packets, args=(node_list,))
+        thread = threading.Thread(target=node_list[i].deal_packets, args=(node_list,))
         threads.append(thread)
     for t in threads:
         t.start()
     for t in threads:
-        t.join(2)
+        t.join(1)
 
     for node in node_list:
         print(node.address + '\t' + 'nexthop' + node.nextHop.address + '\t', end='')
