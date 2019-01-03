@@ -71,6 +71,7 @@ class DiversionNode(Node):
         super(DiversionNode, self).__init__(addr)
         self.diver_num = 0
         self.nextHops = []
+        self.diver_length = []
 
     def get_nextHops(self, node_list, packet):
         for item in Topology.route_table:
@@ -82,20 +83,47 @@ class DiversionNode(Node):
                         # print('************' + temp_nextHop.address + '***********')
                         if self.address not in link:
                             self.nextHops.append(temp_nextHop)
+                            for item in Topology.route_table:  # 根据全局路由表查找下一跳
+                                if item[-2] == temp_nextHop.address and item[0] == self.address:
+                                    trans_next_time = item[-1] * 0.01  # 和下一跳距离越远，发送时间越长
+                                    self.diver_length.append(link[-1] + trans_next_time + (len(link)-1)*len(packet.content)*0.01)
+
+    def rank_nextHops(self):
+        temp_dic = {}
+        for i in range(len(self.nextHops)):
+            temp_dic.update({self.nextHops[i]: self.diver_length[i]})
+        temp_list = sorted(temp_dic.items(), key=lambda x: x[1], reverse=True)
+        self.nextHops = []
+        for i in range(len(temp_list)):
+            self.nextHops.append(temp_list[i][0])
+        self.nextHops.reverse()
 
     def send_packets(self, node_list):
         temp_packet = copy_packet(self.entry[0])
         self.get_nextHops(node_list, temp_packet)
-        self.nextHop = self.nextHops[self.diver_num % len(self.nextHops)]
+        self.rank_nextHops()
+        # self.nextHop = self.nextHops[self.diver_num % len(self.nextHops)]
+        if self.diver_num <= 2:
+            self.nextHop = self.nextHops[0]
+        elif self.diver_num <= 4:
+            # if self.diver_num == 3:
+            #     time.sleep(0.1)
+            self.nextHop = self.nextHops[1]
+        else:
+            # if self.diver_num == 5:
+            #     time.sleep(0.1)
+            self.nextHop = self.nextHops[2]
         self.diver_num += 1
+        temp_wait = 0
         for item in Topology.route_table:  # 根据全局路由表查找下一跳
             if item[-2] == self.nextHop.address and item[0] == self.address:
-                time.sleep(item[-1] * 0.01)  # 和下一跳距离越远，发送时间越长
+                temp_wait = item[-1] * 0.01
+                # time.sleep(item[-1] * 0.01)  # 和下一跳距离越远，发送时间越长
         while True:
             if len(self.nextHop.entry) < 5:  # 若有需要转发的数据包
                 print(self.address + "发包 |" + temp_packet.content + "| 到" + self.nextHop.address)
                 sec = len(temp_packet.content)
-                time.sleep(0.01 * sec)  # 数据包越大，发送时间越长
+                time.sleep(0.01 * sec + temp_wait)  # 数据包越大，发送时间越长
                 self.nextHop.entry.append(temp_packet)  # 将数据包发送到下一跳
                 break
             else:  # 等待下一跳接收功能解除占用

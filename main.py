@@ -39,7 +39,7 @@ if __name__ == '__main__':
     del node_list[0]
     NodeA = Node.DiversionNode(Topology.address_list[0])
     node_list.insert(0, NodeA)
-    content1 = ["Hello", "my", "Simulator"]
+    content1 = ["Hello", "Simulator", "Hi", "my", "own", "network"]
     simulator_start(node_list[0], node_list[-1], content1)
     # ----------------------------------------------------------------------------------------------------
 
@@ -48,6 +48,7 @@ if __name__ == '__main__':
         thread = threading.Thread(target=node_list[i].deal_packets, args=(node_list,))
         threads.append(thread)
     for t in threads:
+        t.setDaemon(True)
         t.start()
     for t in threads:
         t.join(1)
