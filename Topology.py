@@ -4,10 +4,10 @@ import Route
 address_list = ['A', 'B', 'C', 'D', 'E']
 
 topo = Route.Graph()
-topo.add_vertex('A', {'B': 25, 'C': 5, 'D': 5})
-topo.add_vertex('B', {'A': 25, 'E': 5, 'C': 5})
-topo.add_vertex('C', {'A': 25, 'E': 5, 'B': 5})
-topo.add_vertex('D', {'A': 25, 'E': 5})
+topo.add_vertex('A', {'B': 5, 'C': 5, 'D': 5})
+topo.add_vertex('B', {'A': 5, 'E': 5, 'C': 5})
+topo.add_vertex('C', {'A': 5, 'E': 5, 'B': 5})
+topo.add_vertex('D', {'A': 5, 'E': 5})
 topo.add_vertex('E', {'B': 5, 'C': 5, 'D': 5})
 
 logic_link = []  # 所有的逻辑连接
